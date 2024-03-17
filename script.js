@@ -4,28 +4,8 @@ var city = document.querySelector(".city")
 var temp = document.querySelector(".temp")
 var wind = document.querySelector(".wind")
 var humidity = document.querySelector(".humidity")
-var dayOneTemp = document.querySelector(".dayOneTemp")
-var dayTwoTemp = document.querySelector(".dayTwoTemp")
-var dayThreeTemp = document.querySelector(".dayThreeTemp")
-var dayFourTemp = document.querySelector(".dayFourTemp")
-var dayFiveTemp = document.querySelector(".dayFiveTemp")
-var dayOneWind = document.querySelector(".dayOneWind")
-var dayTwoWind = document.querySelector(".dayTwoWind")
-var dayThreeWind = document.querySelector(".dayThreeWind")
-var dayFourWind = document.querySelector(".dayFourWind")
-var dayFiveWind = document.querySelector(".dayFiveWind")
-var dayOneHumidity = document.querySelector(".dayOneHumidity")
-var dayTwoHumidity = document.querySelector(".dayTwoHumidity")
-var dayThreeHumidity = document.querySelector(".dayThreeHumidity")
-var dayFourHumidity = document.querySelector(".dayFourHumidity")
-var dayFiveHumidity = document.querySelector(".dayFiveHumidity")
 var today = dayjs().format("M/D/YYYY")
-var dayOne = document.querySelector(".dayOne");
-var dayTwo = document.querySelector(".dayTwo")
-var dayThree = document.querySelector(".dayThree")
-var dayFour = document.querySelector(".dayFour")
-var dayFive = document.querySelector(".dayFive")
-
+var cityHistory = JSON.parse(localStorage.getItem("history")) || []
 
 function getCoords() {
     var cityName = document.querySelector("#userInput").value;
@@ -43,7 +23,6 @@ function getWeather() {
     getCoords().then(coords => {
         var lat = coords.lat;
         var lon = coords.lon;
-        console.log(lat)
 
         var weatherUrl = "https://api.openweathermap.org/data/2.5/forecast?lat=" + lat + "&lon=" + lon + "&appid=" + apiKey + "&units=imperial";
 
@@ -51,17 +30,23 @@ function getWeather() {
             .then(response => response.json())
 
             .then(data => {
+             
                 var cityValue = data['city']['name'] + ": (" + today + ") ";
                 var tempValue = data['list'][0]['main']['temp'] + "\u00B0F";
                 var windSpeed = data['list'][0]['wind']['speed'] + " MPH";
                 var humidityValue = data['list'][0]['main']['humidity'] + "%";
+                var weatherIcon = data['list'][0]['weather'][0]['icon']
+
 
                 humidity.innerHTML = "Humidity: " + humidityValue;
                 wind.innerHTML = "Wind: " + windSpeed;
                 temp.innerHTML = "Temp: " + tempValue;
-                city.innerHTML = cityValue;
-                console.log(data)
+                city.innerHTML = cityValue + "<img src = 'https://openweathermap.org/img/wn/" + weatherIcon + "@2x.png'> ";
+                console.log(weatherUrl)
+                console.log(weatherIcon)
+                setHistory(data['city']['name'])
             })
+            
     })
 }
 
@@ -76,70 +61,40 @@ function getForecast() {
             .then(response => response.json())
 
             .then(data => {
-                var tempValue = data['list'][4]['main']['temp'] + "\u00B0F";
-                dayOneTemp.innerHTML = "Temp: " + tempValue;
 
-                var tempValue = data['list'][12]['main']['temp'] + "\u00B0F";
-                dayTwoTemp.innerHTML = "Temp: " + tempValue;
+                for (i = 7; i < data.list.length; i = i + 8) {
+                    var dt = data["list"][i]['dt']
+                    var weatherIcon = data['list'][i]['weather'][0]['icon']
+                    var tempValue = data['list'][i]['main']['temp'] + "\u00B0F";
+                    document.querySelector(".temp" + i).innerHTML = "Temp: " + tempValue;
 
-                var tempValue = data['list'][20]['main']['temp'] + "\u00B0F";
-                dayThreeTemp.innerHTML = "Temp: " + tempValue;
+                    var windSpeed = data['list'][i]['wind']['speed'] + " MPH";
+                    document.querySelector(".wind" + i).innerHTML = "Wind: " + windSpeed;
 
-                var tempValue = data['list'][28]['main']['temp'] + "\u00B0F";
-                dayFourTemp.innerHTML = "Temp: " + tempValue;
+                    document.querySelector(".img" + i).src = "https://openweathermap.org/img/wn/" + weatherIcon + "@2x.png";
 
-                var tempValue = data['list'][36]['main']['temp'] + "\u00B0F";
-                dayFiveTemp.innerHTML = "Temp: " + tempValue;
+                    var dateValue = dayjs.unix(dt).format("M/D/YYYY");
+                    document.querySelector(".date" + i).innerHTML = dateValue;
 
-                var windSpeed = data['list'][4]['wind']['speed'] + " MPH";
-                dayOneWind.innerHTML = "Wind: " + windSpeed;
+                    var humidityValue = data['list'][i]['main']['humidity'] + "%";
+                    document.querySelector(".hum" + i).innerHTML = "Humidity: " + humidityValue;
 
-                var windSpeed = data['list'][12]['wind']['speed'] + " MPH";
-                dayTwoWind.innerHTML = "Wind: " + windSpeed;
-
-                var windSpeed = data['list'][20]['wind']['speed'] + " MPH";
-                dayThreeWind.innerHTML = "Wind: " + windSpeed;
-
-                var windSpeed = data['list'][28]['wind']['speed'] + " MPH";
-                dayFourWind.innerHTML = "Wind: " + windSpeed;
-
-                var windSpeed = data['list'][36]['wind']['speed'] + " MPH";
-                dayFiveWind.innerHTML = "Wind: " + windSpeed;
-
-                var humidityValue = data['list'][4]['main']['humidity'] + "%";
-                dayOneHumidity.innerHTML = "Humidity: " + humidityValue;
-
-                var humidityValue = data['list'][12]['main']['humidity'] + "%";
-                dayTwoHumidity.innerHTML = "Humidity: " + humidityValue;
-
-                var humidityValue = data['list'][20]['main']['humidity'] + "%";
-                dayThreeHumidity.innerHTML = "Humidity: " + humidityValue;
-
-                var humidityValue = data['list'][28]['main']['humidity'] + "%";
-                dayFourHumidity.innerHTML = "Humidity: " + humidityValue;
-
-                var humidityValue = data['list'][36]['main']['humidity'] + "%";
-                dayFiveHumidity.innerHTML = "Humidity: " + humidityValue;
-
-                var dateValue = dayjs().add(1, "day").format("M/D/YYYY");
-                dayOne.innerHTML = dateValue;
-
-                var dateValue = dayjs().add(2, "day").format("M/D/YYYY");
-                dayTwo.innerHTML = dateValue;
-
-                var dateValue = dayjs().add(3, "day").format("M/D/YYYY");
-                dayThree.innerHTML = dateValue;
-
-                var dateValue = dayjs().add(4, "day").format("M/D/YYYY");
-                dayFour.innerHTML = dateValue;
-
-                var dateValue = dayjs().add(5, "day").format("M/D/YYYY");
-                dayFive.innerHTML = dateValue;
-
-
+                }
             })
     })
 }
+
+
+function setHistory(cityName) {
+    console.log(cityName)
+    if (cityHistory.join("").includes(cityName) === false) {
+        cityHistory.push(cityName)
+        localStorage.setItem("history", JSON.stringify(cityHistory))
+    }
+}
+
+//pop data in local storage and append buttons
+
 searchBtn.addEventListener("click", getCoords)
 searchBtn.addEventListener("click", getWeather)
 searchBtn.addEventListener("click", getForecast)
