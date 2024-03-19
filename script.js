@@ -7,20 +7,39 @@ var humidity = document.querySelector(".humidity")
 var today = dayjs().format("M/D/YYYY")
 var cityHistory = JSON.parse(localStorage.getItem("history")) || []
 
-function getCoords() {
-    var cityName = document.querySelector("#userInput").value;
+var searchHistoryBtn = document.querySelector(".searchBtn");
+var searchBox = document.querySelector(".searchHistory")
+
+
+function popCoords (cityName) {
     var cityUrl = "http://api.openweathermap.org/geo/1.0/direct?q=" + cityName + "&limit=1&appid=" + apiKey;
+    console.log(cityUrl)
     return fetch(cityUrl)
         .then(response => response.json())
         .then(data => {
             var lat = data[0]["lat"]
             var lon = data[0]["lon"]
             return { lat, lon };
+
         })
+        .then(coords => {
+            document.querySelector("#userInput").value = "";
+
+            return coords;
+        });
+
+}
+ 
+function getCoords() {
+    var cityName = document.querySelector("#userInput").value;
+    if (cityName) {
+      getWeather(cityName);
+    }
+   
 }
 
-function getWeather() {
-    getCoords().then(coords => {
+function getWeather(cityName) {
+    popCoords(cityName).then(coords => {
         var lat = coords.lat;
         var lon = coords.lon;
 
@@ -30,7 +49,7 @@ function getWeather() {
             .then(response => response.json())
 
             .then(data => {
-             
+
                 var cityValue = data['city']['name'] + ": (" + today + ") ";
                 var tempValue = data['list'][0]['main']['temp'] + "\u00B0F";
                 var windSpeed = data['list'][0]['wind']['speed'] + " MPH";
@@ -45,13 +64,15 @@ function getWeather() {
                 console.log(weatherUrl)
                 console.log(weatherIcon)
                 setHistory(data['city']['name'])
+                getHistory();
+               getForecast(data.city.name);
             })
-            
+
     })
 }
 
-function getForecast() {
-    getCoords().then(coords => {
+function getForecast(cityName) {
+    popCoords(cityName).then(coords => {
         var lat = coords.lat;
         var lon = coords.lon;
 
@@ -86,15 +107,46 @@ function getForecast() {
 
 
 function setHistory(cityName) {
-    console.log(cityName)
-    if (cityHistory.join("").includes(cityName) === false) {
-        cityHistory.push(cityName)
+    
+    if (!cityHistory.join("").includes(cityName)) {
+
+          cityHistory.push(cityName)
         localStorage.setItem("history", JSON.stringify(cityHistory))
     }
 }
 
-//pop data in local storage and append buttons
+function getHistory() {
+    localStorage.getItem(cityHistory)
+    var cityButton = document.createElement("button")
+    cityButton.classList.add("searchBtn")
+    searchBox.textContent = "";
+    for (i = cityHistory.length-1; i > cityHistory.length-6; i--) {
+        var button = document.createElement("button")
+        button.classList.add("searchBtn")
+        button.innerHTML = cityHistory[i]
+        if (cityHistory[i]) {
+            searchBox.append(button);
+        }
+       
+    }
+    
+}
 
+getHistory();
+
+
+function searchPast(event) {
+
+if(event.target.matches("button")) {
+    getWeather(event.target.textContent)
+    
+}
+
+}
+
+
+//pop data in local storage and append buttons
+searchBox.addEventListener("click", searchPast);
 searchBtn.addEventListener("click", getCoords)
-searchBtn.addEventListener("click", getWeather)
-searchBtn.addEventListener("click", getForecast)
+// searchBtn.addEventListener("click", getWeather)
+// searchBtn.addEventListener("click", getForecast)

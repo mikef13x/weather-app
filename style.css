@@ -1,6 +1,6 @@
 body {
     font-family: "poppins", serif;
-    
+    list-style: none;
 }
 
 header {
@@ -20,6 +20,15 @@ header {
     width: 210px;
     background-color:rgb(86, 173, 202);
     color: white;
+    margin: 10px;
+    
+}
+.searchBtn {
+    width: 210px;
+    background-color:rgb(247, 245, 169);
+    color: black;
+    margin: 10px;
+    
 }
 
 .search{
@@ -70,7 +79,6 @@ h5 {
 
 .card {
     display: flex;
-    
     width: 10vw;
 }
 /* 
@@ -93,4 +101,8 @@ h3 {
     display: inline-block;
     margin-right: 10px; /* Adjust margin as needed */
 
+}
+
+ul {
+    padding: 0px;
 }
