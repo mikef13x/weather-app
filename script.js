@@ -8,11 +8,11 @@ var today = dayjs().format("M/D/YYYY")
 var cityHistory = JSON.parse(localStorage.getItem("history")) || []
 
 var searchHistoryBtn = document.querySelector(".searchBtn");
-var searchBox = document.querySelector(".searchHistory")
+var searchBox = document.querySelector(".searchHistory");
 
 
 function popCoords (cityName) {
-    var cityUrl = "http://api.openweathermap.org/geo/1.0/direct?q=" + cityName + "&limit=1&appid=" + apiKey;
+    var cityUrl = "https://api.openweathermap.org/geo/1.0/direct?q=" + cityName + "&limit=1&appid=" + apiKey;
     console.log(cityUrl)
     return fetch(cityUrl)
         .then(response => response.json())
